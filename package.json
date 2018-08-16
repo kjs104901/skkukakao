@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
   },
   "repository": {
     "type": "git",
@@ -16,5 +17,9 @@
   "bugs": {
     "url": "https://github.com/kjs104901/skkukakao/issues"
   },
-  "homepage": "https://github.com/kjs104901/skkukakao#readme"
+  "homepage": "https://github.com/kjs104901/skkukakao#readme",
+  "dependencies": {
+    "request": "^2.88.0",
+    "requests": "^0.2.2"
+  }
 }
