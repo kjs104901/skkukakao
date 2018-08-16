@@ -33,11 +33,15 @@ server.on('request', (request, response) => {
             response.end();
         }
         else if (method === "POST" && url === "/message") {
-            const params = parse(body);
+            const params = JSON.parse(body);
             onMessage(params, (result) => {
                 response.write(result);
                 response.end();
             });
+        }
+        else {
+            response.write("SUCCESS");
+            response.end();
         }
 
         response.on('error', (err) => {
@@ -45,7 +49,7 @@ server.on('request', (request, response) => {
         })
     });
 });
-server.listen(80);
+server.listen(8012);
 
 const menuList = [
     {
@@ -61,7 +65,8 @@ const menuList = [
                     { name: "법고을 식당", func: getMenu, arg: 2 },
                     { name: "옥류천 식당", func: getMenu, arg: 3 },
                     { name: "금잔디 식당", func: getMenu, arg: 4 },
-                    { name: "명륜학사", func: getMenu, arg: 5 }
+                    { name: "명륜학사", func: getMenu, arg: 5 },
+                    { name: "처음으로" }
                 ]
             },
             {
@@ -72,8 +77,10 @@ const menuList = [
                     { name: "교직원 식당", func: getMenu, arg: 7 },
                     { name: "공대 식당", func: getMenu, arg: 8 },
                     { name: "봉룡학사", func: getMenu, arg: 9 },
+                    { name: "처음으로" }
                 ]
-            }
+            },
+            { name: "처음으로" }
         ]
     },
     {
@@ -81,7 +88,8 @@ const menuList = [
         subMenuString: "캠퍼스를 선택하세요",
         subMenuList: [
             { name: "인문캠(날씨)", func: getWeather, arg: 0 },
-            { name: "자과캠(날씨)", func: getWeather, arg: 1 }
+            { name: "자과캠(날씨)", func: getWeather, arg: 1 },
+            { name: "처음으로" }
         ]
     },
     {
@@ -89,7 +97,8 @@ const menuList = [
         subMenuString: "캠퍼스를 선택하세요",
         subMenuList: [
             { name: "인문캠(자리)", func: getLibrary, arg: 0 },
-            { name: "자과캠(자리)", func: getLibrary, arg: 1 }
+            { name: "자과캠(자리)", func: getLibrary, arg: 1 },
+            { name: "처음으로" }
         ]
     },
     {
@@ -99,7 +108,8 @@ const menuList = [
             { name: "혜화 상행", func: getSubway, arg: 0 },
             { name: "혜화 하행", func: getSubway, arg: 1 },
             { name: "성대 상행", func: getSubway, arg: 2 },
-            { name: "성대 하행", func: getSubway, arg: 3 }
+            { name: "성대 하행", func: getSubway, arg: 3 },
+            { name: "처음으로" }
         ]
     },
     {
@@ -119,7 +129,8 @@ const menuList = [
             { name: "자과 → 사당", func: getBus, arg: 1 },
             { name: "사당 → 자과", func: getBus, arg: 2 },
             { name: "자과 → 강남", func: getBus, arg: 3 },
-            { name: "강남 → 자과", func: getBus, arg: 4 }
+            { name: "강남 → 자과", func: getBus, arg: 4 },
+            { name: "처음으로" }
         ]
     },
     {
@@ -134,6 +145,43 @@ const menuList = [
     {
         name: "커뮤니티", func: getCommunity, arg: null
     }
+]
+
+const emojiList = emoji_list = [
+    "(하트뿅)",
+    "(하하)",
+    "(우와)",
+    "(심각)",
+    "(힘듦)",
+    "(흑흑)",
+    "(아잉)",
+    "(찡긋)",
+    "(뿌듯)",
+    "(깜짝)",
+    "(빠직)",
+    "(짜증)",
+    "(제발)",
+    "(씨익)",
+    "(신나)",
+    "(헉)",
+    "(열받아)",
+    "(흥)",
+    "(감동)",
+    "(뽀뽀)",
+    "(멘붕)",
+    "(정색)",
+    "(쑥스)",
+    "(꺄아)",
+    "(좋아)",
+    "(굿)",
+    "(훌쩍)",
+    "(허걱)",
+    "(부르르)",
+    "(푸하하)",
+    "(발그레)",
+    "(수줍)",
+    "(컴온)",
+    "(졸려)"
 ]
 
 // on events
@@ -160,7 +208,23 @@ function onMessage(params, callback) {
 
     if (params.type === "text") {
         let foundMenu = findMenu(menuList, params.content);
-        if (foundMenu) {
+
+        if (params.content === "처음으로") {
+            const emoji = emojiList[Math.floor(Math.random() * emojiList.length)];
+            resultObj.message.text = "안녕하세요. 친절한 성톡씨입니다 " + emoji;
+
+            let buttons = [];
+            menuList.forEach(menu => {
+                buttons.push(menu.name);
+            });
+            resultObj.keyboard = {
+                type: "buttons",
+                buttons: buttons
+            };
+
+            callback(JSON.stringify(resultObj));
+        }
+        else if (foundMenu) {
             if (foundMenu.subMenuList) {
                 resultObj.message.text = foundMenu.subMenuString;
                 resultObj.keyboard = {
@@ -243,6 +307,7 @@ function findMenu(menuList, menuName) {
     return foundMenu;
 }
 
+// user functions
 function getMenu(arg, callback) {
     let restaurant = {};
     switch (arg) {
@@ -316,10 +381,13 @@ function getMenu(arg, callback) {
                     resultString += menu + "/";
                 })
                 resultString += "\n";
-                resultString += " - " + menu.price + "원" + "\n\n";
+                if (menu.price) {
+                    resultString += " - " + menu.price + "원" + "\n"
+                }
+                resultString += "\n";
             });
             if (resultB.length === 0) {
-                resultString += "메뉴가 없습니다." + "\n";
+                resultString += "메뉴가 없습니다." + "\n\n";
             }
 
             resultString += "[점심]" + "\n";
@@ -328,10 +396,13 @@ function getMenu(arg, callback) {
                     resultString += menu + "/";
                 })
                 resultString += "\n";
-                resultString += " - " + menu.price + "원" + "\n\n";
+                if (menu.price) {
+                    resultString += " - " + menu.price + "원" + "\n"
+                }
+                resultString += "\n";
             });
             if (resultL.length === 0) {
-                resultString += "메뉴가 없습니다." + "\n";
+                resultString += "메뉴가 없습니다." + "\n\n";
             }
 
             resultString += "[저녁]" + "\n";
@@ -340,13 +411,16 @@ function getMenu(arg, callback) {
                     resultString += menu + "/";
                 })
                 resultString += "\n";
-                resultString += " - " + menu.price + "원" + "\n\n";
+                if (menu.price) {
+                    resultString += " - " + menu.price + "원" + "\n"
+                }
+                resultString += "\n";
             });
             if (resultD.length === 0) {
                 resultString += "메뉴가 없습니다.";
             }
 
-            callback(resultString);
+            callback({ text: resultString });
             clearInterval(intv);
         }
         if (10 < intvCount) {
@@ -355,8 +429,6 @@ function getMenu(arg, callback) {
     }, 1000);
 }
 
-
-// user functions
 function getWeather(arg, callback) {
     weather.getWeather(arg, (result) => {
         if (result.weather.length === 0) {
@@ -425,10 +497,10 @@ function getLibrary(arg, callback) {
         let resultString = "";
         result.forEach(room => {
             if (room.disablePeriod) {
-                resultString += room.name + " 운영중지: " + room.disablePeriodName + "\n";
+                resultString += "# " + room.name + " 운영중지: " + room.disablePeriodName + "\n";
             }
             else {
-                resultString += room.name + " [" + room.occupied + "/" + room.total + "] (" + room.percent + "%)" + "\n";
+                resultString += "# " + room.name + " [" + room.occupied + "/" + room.total + "] (" + room.percent + "%)" + "\n";
             }
         });
         callback({ text: resultString });
@@ -492,7 +564,7 @@ function getSuttle(arg, callback) {
             let reversedSuttle = result.reverse();
 
             reversedSuttle.forEach((suttle) => {
-                resultString += "  ↑  " + " - " + (suttle.kind == 3 ? "▲" + suttle.carNumber : "") + "\n"
+                resultString += "  ↑      " + " - " + (suttle.kind == 3 ? "▲" + suttle.carNumber : "") + "\n"
                 resultString += suttle.stationName + " - " + (suttle.kind == 2 || suttle.kind == 1 ? "▲" + suttle.carNumber : "") + "\n"
             });
 
@@ -604,7 +676,7 @@ function getNotice(arg, callback) {
 function getCalendar(arg, callback) {
     calendar.getTodayCalendar((result) => {
         let resultString = "";
-        resultString += "["+result.today+"]" +"\n";
+        resultString += "[" + result.today + "]" + "\n";
         result.list.forEach(cal => {
             resultString += "# " + cal.title + "\n";
             resultString += " 시작 " + cal.startDate + "\n";
@@ -636,15 +708,15 @@ function getCommunity(arg, callback) {
     resultString += "대나무숲" + "\n";
     resultString += "https://www.facebook.com/SKKUBamboo/" + "\n";
     resultString += "\n";
-    
+
     resultString += "에브리타임" + "\n";
     resultString += "https://everytime.kr/" + "\n";
     resultString += "\n";
-    
+
     resultString += "성대사랑" + "\n";
     resultString += "http://www.skkulove.com" + "\n";
     resultString += "\n";
-    
+
     resultString += "스꾸족보" + "\n";
     resultString += "https://skkujokbo.com/" + "\n";
     resultString += "\n";
