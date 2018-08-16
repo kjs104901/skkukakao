@@ -19,7 +19,9 @@
   },
   "homepage": "https://github.com/kjs104901/skkukakao#readme",
   "dependencies": {
+    "node-machine-id": "^1.1.10",
     "request": "^2.88.0",
-    "requests": "^0.2.2"
+    "requests": "^0.2.2",
+    "xml2js": "^0.4.19"
   }
 }
