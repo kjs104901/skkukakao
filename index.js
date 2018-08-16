@@ -129,7 +129,7 @@ const menuList = [
         name: "학사 일정", func: getCalendar, arg: null
     },
     {
-        name: "킹고앱", func: getKingo, arg: null
+        name: "킹고봇", func: getKingo, arg: null
     },
     {
         name: "커뮤니티", func: getCommunity, arg: null
@@ -602,19 +602,54 @@ function getNotice(arg, callback) {
 }
 
 function getCalendar(arg, callback) {
-    return {
-        "text": "getCalendar " + arg
-    }
+    calendar.getTodayCalendar((result) => {
+        let resultString = "";
+        resultString += "["+result.today+"]" +"\n";
+        result.list.forEach(cal => {
+            resultString += "# " + cal.title + "\n";
+            resultString += " 시작 " + cal.startDate + "\n";
+            resultString += " 종료 " + cal.endDate + "\n";
+            resultString += "\n";
+        });
+        callback({
+            text: resultString,
+            message_button: {
+                label: "전체일정 보기",
+                url: "https://www.skku.edu/skku/edu/bachelor/ca_de_schedule.do"
+            }
+        })
+    });
 }
 
 function getKingo(arg, callback) {
-    return {
-        "text": "getKingo " + arg
-    }
+    callback({
+        text: "킹고봇",
+        message_button: {
+            label: "바로가기",
+            url: "http://kingo.skku.edu/chat"
+        }
+    })
 }
 
 function getCommunity(arg, callback) {
-    return {
-        "text": "getCommunity " + arg
-    }
+    let resultString = "";
+    resultString += "대나무숲" + "\n";
+    resultString += "https://www.facebook.com/SKKUBamboo/" + "\n";
+    resultString += "\n";
+    
+    resultString += "에브리타임" + "\n";
+    resultString += "https://everytime.kr/" + "\n";
+    resultString += "\n";
+    
+    resultString += "성대사랑" + "\n";
+    resultString += "http://www.skkulove.com" + "\n";
+    resultString += "\n";
+    
+    resultString += "스꾸족보" + "\n";
+    resultString += "https://skkujokbo.com/" + "\n";
+    resultString += "\n";
+
+    callback({
+        text: resultString
+    })
 }

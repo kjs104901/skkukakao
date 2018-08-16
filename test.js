@@ -7,7 +7,7 @@ request(
         method: "POST",
         form: {
             type: "text",
-            content: "학사 공지"
+            content: "커뮤니티"
         }
     },
     (error, response, body) => {
