@@ -6,7 +6,7 @@ request(
         method: "POST",
         form: {
             type: "text",
-            content: "커뮤니티"
+            content: "인문캠(날씨)"
         }
     },
     (error, response, body) => {

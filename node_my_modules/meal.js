@@ -159,6 +159,7 @@ exports.getMealList = (restaurant, category, year, month, day, callback) => {
                             const end = priceStr2.indexOf("/")
                             let priceStr = priceStr2.substring(start + 2, end);
                             priceStr = priceStr.replace(/,/g, "");
+                            priceStr = priceStr.replace(/\./g, "");
                             price = priceStr * 100;
                         }
 

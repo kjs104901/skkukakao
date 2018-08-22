@@ -119,7 +119,8 @@ const menuList = [
             { name: "인문캠 순환", func: getSuttle, arg: 0 },
             { name: "인문 ↔ 자과", func: getSuttle, arg: 1 },
             { name: "자과 ↔ 사당", func: getSuttle, arg: 2 },
-            { name: "자과 ↔ 분당", func: getSuttle, arg: 3 }
+            { name: "자과 ↔ 분당", func: getSuttle, arg: 3 },
+            { name: "처음으로" }
         ]
     },
     {
@@ -448,20 +449,20 @@ function getWeather(arg, callback) {
             resultString += "습도: " + weather[0].humidity + "%" + "\n";
             resultString += "\n";
             resultString += "[3시간 뒤]" + "\n";
-            resultString += "일기: " + getSkyString(weather[1].sky, weather[1].prec, weather[1].wind) + "\n";
-            resultString += "온도: " + weather[1].currentTemp + "°" + "\n";
+            resultString += "일기: " + getSkyString(weather[1].sky, weather[1].prec, weather[1].wind) + " ";
+            resultString += "(" + weather[1].currentTemp + "°" + ")\n";
             resultString += "강수확률: " + weather[1].precPercent + "%" + "\n";
             resultString += "[6시간 뒤]" + "\n";
-            resultString += "일기: " + getSkyString(weather[2].sky, weather[2].prec, weather[2].wind) + "\n";
-            resultString += "온도: " + weather[2].currentTemp + "°" + "\n";
+            resultString += "일기: " + getSkyString(weather[2].sky, weather[2].prec, weather[2].wind) + " ";
+            resultString += "(" + weather[2].currentTemp + "°" + ")\n";
             resultString += "강수확률: " + weather[2].precPercent + "%" + "\n";
             resultString += "[9시간 뒤]" + "\n";
-            resultString += "일기: " + getSkyString(weather[3].sky, weather[3].prec, weather[3].wind) + "\n";
-            resultString += "온도: " + weather[3].currentTemp + "°" + "\n";
+            resultString += "일기: " + getSkyString(weather[3].sky, weather[3].prec, weather[3].wind) + " ";
+            resultString += "(" + weather[3].currentTemp + "°" + ")\n";
             resultString += "강수확률: " + weather[3].precPercent + "%" + "\n";
             resultString += "[12시간 뒤]" + "\n";
-            resultString += "일기: " + getSkyString(weather[4].sky, weather[4].prec, weather[4].wind) + "\n";
-            resultString += "온도: " + weather[4].currentTemp + "°" + "\n";
+            resultString += "일기: " + getSkyString(weather[4].sky, weather[4].prec, weather[4].wind) + " ";
+            resultString += "(" + weather[4].currentTemp + "°" + ")\n";
             resultString += "강수확률: " + weather[4].precPercent + "%" + "\n";
             callback({ text: resultString });
         }
@@ -469,25 +470,25 @@ function getWeather(arg, callback) {
 }
 
 function getSkyString(sky, prec, wind) {
-    let skyString = "맑음";
-    if (sky === 2) {
-        skyString = "조금 흐림";
+    let skyString = "맑음 ☀";
+    if (sky == '2') {
+        skyString = "조금 흐림 🌤";
     }
-    if (sky === 3) {
-        skyString = "흐림";
+    if (sky == '3') {
+        skyString = "흐림 ⛅";
     }
-    if (sky === 4) {
-        skyString = "매우 흐림";
+    if (sky == '4') {
+        skyString = "매우 흐림 ☁";
     }
-    if (prec === 1 || prec === 2) {
-        skyString = "비";
+    if (prec == '1' || prec == '2') {
+        skyString = "비 💧";
     }
-    else if (prec === 3 || prec === 4) {
-        skyString = "눈";
+    else if (prec == '3' || prec == '4') {
+        skyString = "눈 ❄";
     }
 
-    if (14 <= wind) {
-        skyString += " (바람 많음)";
+    if (14 <= (wind*1)) {
+        skyString += " (바람 많음 💨)";
     }
     return skyString;
 }
@@ -497,10 +498,21 @@ function getLibrary(arg, callback) {
         let resultString = "";
         result.forEach(room => {
             if (room.disablePeriod) {
-                resultString += "# " + room.name + " 운영중지: " + room.disablePeriodName + "\n";
+                resultString += "# " + room.name + "\n" + room.disablePeriodName + "\n";
             }
             else {
-                resultString += "# " + room.name + " [" + room.occupied + "/" + room.total + "] (" + room.percent + "%)" + "\n";
+                resultString += "# " + room.name + " [" + room.occupied + "/" + room.total + "]" + "\n";
+                let percentString = "";
+                for (let index = 0; index < 10; index++) {
+                    if (index*10 < room.percent) {
+                        percentString += "■";
+                    }
+                    else {
+                        percentString += "□";
+                    }
+                    
+                }
+                resultString += percentString+ " (" + room.percent + "%)" + "\n";
             }
         });
         callback({ text: resultString });
@@ -525,10 +537,11 @@ function getSubway(arg, callback) {
             if (station.length === 0) {
                 station = "  ↑  ";
             }
+            station = station.substr(0, 6);
 
             let trainString = "";
             result.trainArray[index].forEach((train) => {
-                trainString += train.destination + (train.isExpress ? "(급)" : "") + " ";
+                trainString += "["+train.destination + (train.isExpress ? "(급)" : "") + "] ";
             });
 
             resultString += station + " - " + trainString + "\n";
@@ -660,7 +673,7 @@ function getNotice(arg, callback) {
     notice.getNoticeList(2, 0, (result) => {
         let resultString = "";
         result.list.forEach(noticeElement => {
-            resultString += "# " + noticeElement.title.substr(0, 20) + "\n"
+            resultString += "# " + noticeElement.title.substr(0, 30) + "\n"
         });
 
         callback({
